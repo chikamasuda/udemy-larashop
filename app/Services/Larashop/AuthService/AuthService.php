@@ -59,28 +59,32 @@ class AuthService implements AuthServiceInterface
      * @exception UserNotFoundException
      * @return AccessToken
      */
-    // public function signupVerify(int $id, int $expires, string $signature): AccessToken
-    // {
-    //     if (!$this->verifySignature($id, $expires, $signature)) {
-    //         throw new InvalidSignatureException();
-    //     }
+    public function signupVerify(int $id, int $expires, string $signature): AccessToken
+    {
+        //認証情報が正しくなかったら
+        if (!$this->verifySignature($id, $expires, $signature)) {
+            throw new InvalidSignatureException();
+        }
 
-    //     $user = User::find($id);
+        $user = User::find($id);
 
-    //     if (!$user) {
-    //         throw new UserNotFoundException();
-    //     }
+        //ユーザー情報がなかったら
+        if (!$user) {
+            throw new UserNotFoundException();
+        }
 
-    //     if ($user->hasVerifiedEmail()) {
-    //         throw new UserAlreadyVerifiedException();
-    //     }
+        //userが持つemail_verified_atの値がnullかどうか
+        if ($user->hasVerifiedEmail()) {
+            throw new UserAlreadyVerifiedException();
+        }
 
-    //     $user->markEmailAsVerified();
-    //     event(new Verified($user));
-    //     $accessToken = $user->createToken(self::API_TOKEN_NAME)->plainTextToken;
+        //メール確認をしてアクセストークン発行
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+        $accessToken = $user->createToken(self::API_TOKEN_NAME)->plainTextToken;
 
-    //     return new AccessToken($accessToken, $user);
-    // }
+        return new AccessToken($accessToken, $user);
+    }
 
     /**
      * ログインする＝ログイン情報が正しければアクセストークンを返す
@@ -134,16 +138,16 @@ class AuthService implements AuthServiceInterface
      * @param  string  $signature
      * @return bool
      */
-    // private function verifySignature(int $id, int $expires, string $signature): bool
-    // {
-    //     $calculatedSignature = hash_hmac(
-    //         'sha256',
-    //         $id . $expires,
-    //         config('app.key')
-    //     );
+    private function verifySignature(int $id, int $expires, string $signature): bool
+    {
+        $calculatedSignature = hash_hmac(
+            'sha256',
+            $id . $expires,
+            config('app.key')
+        );
 
-    //     return $calculatedSignature === $signature;
-    // }
+        return $calculatedSignature === $signature;
+    }
 
     /**
      * ユーザー本登録用URLの作成
