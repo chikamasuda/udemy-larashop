@@ -21,8 +21,8 @@ class ProductController extends Controller
 {
 
     /**
-    * @var ProductServiceInterface
-    */
+     * @var ProductServiceInterface
+     */
     private $productService;
 
     /**
@@ -31,8 +31,7 @@ class ProductController extends Controller
      */
     public function __construct(
         ProductServiceInterface $productService
-    )
-    {
+    ) {
         $this->productService = $productService;
     }
 
@@ -82,8 +81,8 @@ class ProductController extends Controller
      * @param  ShowRequest  $request
      * @return ProductResource
      */
-    // public function show(ShowRequest $request, Product $product)
-    // {
-    //     return new ProductResource($product);
-    // }
+    public function show(ShowRequest $request, Product $product)
+    {
+        return new ProductResource($product);
+    }
 }
